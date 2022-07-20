@@ -44,6 +44,7 @@ if __name__ == "__main__":
     batch_size = 250
     num_decode = 1000
 
+    print('\t'.join(['PDB', 'Native', 'Designed', 'Perpexity']))
     with torch.no_grad():
         for ab in tqdm(data):
             new_cdrs, new_ppl = [], []
@@ -56,5 +57,4 @@ if __name__ == "__main__":
             orig_cdr = ab['binder_seq']
             new_res = sorted(zip(new_cdrs, new_ppl), key=lambda x:x[1])
             for cdr,ppl in new_res[:100]:
-                match = [int(a == b) for a,b in zip(orig_cdr, cdr)]
-                print(ab['pdb'], orig_cdr, cdr, ppl, match)
+                print('\t'.join([ab['pdb'], orig_cdr, cdr, ppl]))

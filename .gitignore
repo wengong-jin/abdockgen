@@ -1,6 +1,4 @@
-/data/
 *.pyc
-/ckpt*/
 backup.py
 /output*/
 new.py
