@@ -13,19 +13,12 @@ import os
 
 from bindgen import *
 from tqdm import tqdm
-from sklearn.metrics import auc, precision_recall_curve, roc_auc_score
-
 torch.set_num_threads(8)
-
-def prc_auc(targets, preds):
-    precision, recall, _ = precision_recall_curve(targets, preds)
-    return auc(recall, precision)
 
 
 def evaluate(model, loader, args):
     model.eval()
     ligand_rmsd, ab_full_rmsd = [], []
-    contact_auc = []
     with torch.no_grad():
         for batch in tqdm(loader):
             batch = make_batch(batch)
@@ -49,20 +42,7 @@ def evaluate(model, loader, args):
             )
             ab_full_rmsd.extend(rmsd.tolist())
 
-            true_D, _ = full_square_dist(bind_X, tgt_X, bind_A, tgt_A, contact=True)
-            if args.hierarchical:
-                pred_D, _ = full_square_dist(out.bind_X, tgt_X, bind_A, tgt_A, contact=True)
-            else:
-                pred_D, _ = cross_square_dist(out.bind_X, tgt_X, bind_mask[:,:,1], tgt_mask[:,:,1])
-
-            pred = (1 / pred_D).view(-1).detach().cpu().numpy()
-            label = (true_D <= 16.0).long()
-            label = label.view(-1).detach().cpu().numpy()
-            if label.sum() > 0:
-                auc = prc_auc(label, pred)
-                contact_auc.append(auc)
-
-    return [sum(x) / len(x) for x in [ligand_rmsd, ab_full_rmsd, contact_auc]]
+    return [sum(x) / len(x) for x in [ligand_rmsd, ab_full_rmsd]]
 
 
 parser = argparse.ArgumentParser()
@@ -152,7 +132,7 @@ for e in range(args.epochs):
     val_rmsd = evaluate(model, loader_val, args)
     ckpt = (model.state_dict(), optimizer.state_dict(), args)
     torch.save(ckpt, os.path.join(args.save_dir, f"model.ckpt.{e}"))
-    print(f'Epoch {e}, Ligand RMSD = {val_rmsd[0]:.3f}, All atom RMSD = {val_rmsd[1]:.3f}, Contact AUPRC = {val_rmsd[2]:.3f}')
+    print(f'Epoch {e}, Ligand RMSD = {val_rmsd[0]:.3f}, All atom RMSD = {val_rmsd[1]:.3f}')
 
     if val_rmsd[0] < best_rmsd:
         best_rmsd = val_rmsd[0]
@@ -164,4 +144,4 @@ if best_epoch >= 0:
     model.load_state_dict(torch.load(best_ckpt)[0])
 
 test_rmsd = evaluate(model, loader_test, args)
-print(f'Test Ligand RMSD = {test_rmsd[0]:.3f}, All atom RMSD = {test_rmsd[1]:.3f}, Contact AUPRC = {test_rmsd[2]:.3f}')
+print(f'Test Ligand RMSD = {test_rmsd[0]:.3f}, All atom RMSD = {test_rmsd[1]:.3f}')

@@ -28,8 +28,8 @@ def build_model(args):
 
 
 if __name__ == "__main__":
-    model_ckpt, _, args = torch.load(sys.argv[1])
-    model = build_model(args)
+    model_ckpt, _, model_args = torch.load(sys.argv[1])
+    model = build_model(model_args)
     model.load_state_dict(model_ckpt)
     model.eval()
 
@@ -43,8 +43,9 @@ if __name__ == "__main__":
     random.seed(args.seed)
     batch_size = 250
     num_decode = 1000
+    topk = sys.argv[3]
 
-    print('\t'.join(['PDB', 'Native', 'Designed', 'Perpexity']))
+    print('PDB', 'Native', 'Designed', 'Perplexity')
     with torch.no_grad():
         for ab in tqdm(data):
             new_cdrs, new_ppl = [], []
@@ -56,5 +57,5 @@ if __name__ == "__main__":
 
             orig_cdr = ab['binder_seq']
             new_res = sorted(zip(new_cdrs, new_ppl), key=lambda x:x[1])
-            for cdr,ppl in new_res[:100]:
-                print('\t'.join([ab['pdb'], orig_cdr, cdr, ppl]))
+            for cdr,ppl in new_res[:topk]:
+                print(ab['pdb'], orig_cdr, cdr, '%.3f' % ppl)

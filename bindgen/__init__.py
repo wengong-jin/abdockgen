@@ -1,4 +1,3 @@
-from bindgen.contact import *
 from bindgen.data import *
 from bindgen.dock import *
 from bindgen.generate import *

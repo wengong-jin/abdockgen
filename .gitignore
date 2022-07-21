@@ -1,6 +1,6 @@
 *.pyc
 backup.py
-/output*/
 new.py
 /scripts/
 /results/
+/outputs/
