@@ -33,6 +33,7 @@ where `L_target` is the size of the epitope and `--hierarchical` means using hie
 
 At test time, we can dock CDR-H3 paratopes onto their corresponding epitopes:
 ```
+mkdir outputs
 python predict.py ckpts/HERN_dock.ckpt data/rabd/test_data.jsonl
 ```
 It will produce a PDB file for each epitope in the test set with docked CDR-H3 structure. You can evaluate those docked structures using DockQ.py
