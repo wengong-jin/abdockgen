@@ -33,7 +33,8 @@ where `L_target` is the size of the epitope and `--hierarchical` means using hie
 
 At test time, we can dock CDR-H3 paratopes onto their corresponding epitopes:
 ```
-python predict.py ckpts/dock_model.ckpt data/rabd/test_data.jsonl
+mkdir outputs
+python predict.py ckpts/HERN_dock.ckpt data/rabd/test_data.jsonl
 ```
 It will produce a PDB file for each epitope in the test set with docked CDR-H3 structure. You can evaluate those docked structures using DockQ.py
 
@@ -43,7 +44,8 @@ The training script can be launched by
 python lm_train.py --hierarchical --L_target 20 --save_dir ckpts/HERN-gen
 ```
 
-At test time, we can design new CDR-H3 paratopes specific to a given epitope:
+At test time, we can generate new CDR-H3 paratopes specific to a given epitope:
 ```
-python generate.py ckpts/gen_model.ckpt data/rabd/test_data.jsonl > results/HERN.txt
+python generate.py ckpts/HERN_gen.ckpt data/rabd/test_data.jsonl 1 > results/HERN.txt
 ```
+The above script will generate one CDR-H3 sequence per epitope. You can sample more candidates by changing this parameter.
