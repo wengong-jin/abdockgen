@@ -25,6 +25,7 @@ if __name__ == "__main__":
     hchain = parsePDB(pdb_id, model=1, chain=hchain)
     _, hcoords, hseq, _, _ = get_seq_coords_and_angles(hchain)
     hcdr = ''.join([tocdr(res.getResnum()) for res in hchain.iterResidues()])
+    hcdr = hcdr[:len(hseq)]
     hcoords = hcoords.reshape((len(hseq), 14, 3))
     hcoords = eval(np.array2string(hcoords, separator=',', threshold=np.inf, precision=3, suppress_small=True))
 
