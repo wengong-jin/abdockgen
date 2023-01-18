@@ -28,8 +28,8 @@ def build_model(args):
 
 
 if __name__ == "__main__":
-    model_ckpt, _, model_args = torch.load(sys.argv[1])
-    model = build_model(model_args)
+    model_ckpt, _, args = torch.load(sys.argv[1])
+    model = build_model(args)
     model.load_state_dict(model_ckpt)
     model.eval()
 
